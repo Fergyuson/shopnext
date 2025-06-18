@@ -1,17 +1,18 @@
-// src/stories/Page.stories.tsx
+// src/stories/HomePage.stories.tsx
 
-import React from 'react';
-import type { ComponentMeta, ComponentStory } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import HomePage from '@/app/page';
 
-export default {
+const meta: Meta<typeof HomePage> = {
     title: 'Pages/HomePage',
     component: HomePage,
-} as ComponentMeta<typeof HomePage>;
+};
+export default meta;
 
-const Template: ComponentStory<typeof HomePage> = (args) => <HomePage {...args} />;
+type Story = StoryObj<typeof HomePage>;
 
-export const Default = Template.bind({});
-Default.args = {
-    // страница без входных пропсов
+export const Default: Story = {
+    args: {
+        // никаких пропсов у страницы нет
+    },
 };

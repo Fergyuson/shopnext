@@ -58,7 +58,7 @@ export default function CartPage() {
                                     <span className="text-lg font-medium">×{qty}</span>
                                 </div>
                                 <Button onClick={() => removeItem(country.code)}>
-                                    Удалить одну
+                                    Удалить
                                 </Button>
                             </div>
                         ))}

@@ -1,19 +1,20 @@
 // src/stories/Header.stories.tsx
 
-import React from 'react';
-import type { ComponentMeta, ComponentStory } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import { Header } from '@/widgets/Header/ui/Header';
 
-export default {
+const meta: Meta<typeof Header> = {
     title: 'Widgets/Header',
     component: Header,
-} as ComponentMeta<typeof Header>;
+};
 
-const Template: ComponentStory<typeof Header> = (args) => <Header {...args} />;
+export default meta;
 
-export const Default = Template.bind({});
-Default.args = {
-    // если у Header есть пропсы, можно их здесь прописать:
-    // title: 'ShopNext',
-    // logoSrc: '/logo.png',
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const Default: StoryObj<typeof Header> = {
+    args: {
+        // если у Header есть пропсы, можно их здесь заполнить, например:
+        // title: 'ShopNext',
+        // logoSrc: '/logo.png',
+    },
 };

@@ -8,7 +8,9 @@ const config: StorybookConfig = {
   addons: [
     '@storybook/addon-essentials',
     '@storybook/addon-interactions',
-    '@storybook/addon-a11y'
+    '@storybook/addon-a11y',
+    '@storybook/test-runner',
+    '@storybook/testing-library',
   ],
   framework: {
     name: '@storybook/experimental-nextjs-vite',

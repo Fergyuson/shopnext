@@ -5,6 +5,7 @@ import { useQuery } from '@apollo/client';
 import { GET_COUNTRIES } from '@/entities/product/api/productApi';
 import { CountryCard } from '@/entities/product/ui/CountryCard';
 import type { ICountry } from '@/entities/product/types';
+import Link from 'next/link';
 
 interface CountryListProps {
     filter: string;
@@ -25,10 +26,12 @@ export const CountryList: React.FC<CountryListProps> = ({ filter }) => {
     );
 
     return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid …">
             {filtered.map((c) => (
-                <CountryCard key={c.code} country={c} />
+                       <Link key={c.code} href={`/${c.code}`} className="block">
+                             <CountryCard country={c} />
+                           </Link>
             ))}
         </div>
     );
-};
+};;
