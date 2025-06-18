@@ -1,3 +1,4 @@
+// src/app/cart/page.tsx
 'use client';
 
 import React from 'react';
@@ -12,9 +13,9 @@ const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_KEY!);
 export default function CartPage() {
     const { items, removeItem, clearCart } = useCart();
 
-    // 1. Группируем массив items в объект { [code]: { country, qty } }
-    const grouped = items.reduce<Record<string, { country: ICountry; qty: number }>>(
-        (acc, country) => {
+    // 1. Сгруппировать по коду
+    const grouped = items.reduce(
+        (acc: Record<string, { country: ICountry; qty: number }>, country) => {
             if (acc[country.code]) {
                 acc[country.code].qty += 1;
             } else {
@@ -25,51 +26,67 @@ export default function CartPage() {
         {}
     );
 
-    // 2. Преобразуем обратно в массив для .map()
+    // 2. Превратить обратно в массив для рендера и для чекаута
     const groupedArray = Object.values(grouped);
+
+    React.useEffect(() => {
+        console.log('Grouped cart items:', groupedArray);
+    }, [groupedArray]);
 
     const handleCheckout = async () => {
         const stripe = await stripePromise;
+
+        // 3. Формируем payload с полем `quantity`
+        const payloadItems = groupedArray.map(({ country, qty }) => ({
+            name: country.name,
+            price: country.price ?? 1,  // убедитесь, что price есть
+            quantity: qty,
+        }));
+
+        console.log('Checkout payload:', payloadItems);
+
         const res = await fetch('/api/checkout', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ items }), // оставляем исходный массив, чтобы учитывались все единицы
+            body: JSON.stringify({ items: payloadItems }),
         });
-        const { sessionId } = await res.json();
+
+        if (!res.ok) {
+            const text = await res.text();
+            console.error('Checkout error, server replied:', text);
+            return;
+        }
+
+        const raw = await res.text();
+        console.log('Raw response:', raw);
+        const { sessionId } = JSON.parse(raw);
+
         await stripe?.redirectToCheckout({ sessionId });
     };
 
+    if (groupedArray.length === 0) {
+        return <div className="p-8">Корзина пуста</div>;
+    }
+
     return (
         <main className="p-8 space-y-6">
-            <h1 className="text-3xl font-bold">Ваша корзина</h1>
+            {groupedArray.map(({ country, qty }) => (
+                <div
+                    key={country.code}
+                    className="flex justify-between items-center"
+                >
+                    <CountryCard country={country} />
+                    <span className="text-lg">×{qty}</span>
+                    <Button onClick={() => removeItem(country.code)}>
+                        Удалить одну
+                    </Button>
+                </div>
+            ))}
 
-            {groupedArray.length === 0 ? (
-                <p>Корзина пуста</p>
-            ) : (
-                <>
-                    <div className="space-y-4">
-                        {groupedArray.map(({ country, qty }) => (
-                            <div
-                                key={country.code}  // теперь ключ уникален
-                                className="flex items-center justify-between"
-                            >
-                                <div className="flex items-center space-x-4">
-                                    <CountryCard country={country} />
-                                    <span className="text-lg font-medium">×{qty}</span>
-                                </div>
-                                <Button onClick={() => removeItem(country.code)}>
-                                    Удалить
-                                </Button>
-                            </div>
-                        ))}
-                    </div>
-
-                    <div className="flex space-x-4">
-                        <Button onClick={clearCart}>Очистить корзину</Button>
-                        <Button onClick={handleCheckout}>Оформить заказ</Button>
-                    </div>
-                </>
-            )}
+            <div className="flex space-x-4">
+                <Button onClick={clearCart}>Очистить корзину</Button>
+                <Button onClick={handleCheckout}>Оформить заказ</Button>
+            </div>
         </main>
     );
 }
